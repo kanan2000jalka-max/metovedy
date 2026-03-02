@@ -28,6 +28,33 @@ body {
     z-index: -1;
 }
 
+/* НОВЫЙ КОНТЕЙНЕР ДЛЯ ПРОКРУТКИ */
+.text-container {
+    flex: 1;
+    padding: 0;
+    display: flex;
+    align-items: flex-end;
+    position: relative;
+    overflow: hidden;
+}
+
+.scrolling-text-wrapper {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 100%;
+    overflow-y: auto;
+    padding: 20px;
+    background: linear-gradient(0deg, 
+        rgba(0,0,0,0.95) 0%, 
+        rgba(0,0,0,0.7) 30%, 
+        rgba(0,0,0,0.3) 70%,
+        transparent 100%);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.3) transparent;
+}
+
 /* Градиент снизу вверх (черный -> прозрачный) */
 .text-container {
     flex: 1;
@@ -41,15 +68,39 @@ body {
         transparent 100%);
 }
 
+/* Стилизация скроллбара для Chrome/Safari */
+.scrolling-text-wrapper::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scrolling-text-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scrolling-text-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.3);
+    border-radius: 3px;
+}
+
 /* Текст сцены */
 .scene-text {
     font-size: 18px;
-    line-height: 1.6;
+    line-height: 1.8;
     text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
-    max-width: 800px;
-    margin: 0 auto;
-    width: 100%;
+    color: white;
+    padding-bottom: 30px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
+
+.scene-text p {
+    margin: 0 0 15px 0;
+}
+
+.scene-text p:last-child {
+    margin-bottom: 0;
+}
+
 
 /* Контейнер для кнопок */
 .choices-container {
