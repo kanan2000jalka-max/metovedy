@@ -1,4 +1,4 @@
-/* Базовые стили для адаптации под Telegram */
+/* Базовые стили */
 body {
     margin: 0;
     padding: 0;
@@ -9,7 +9,6 @@ body {
     overflow: hidden;
 }
 
-/* Основной контейнер игры */
 .game-container {
     position: relative;
     height: 100vh;
@@ -17,7 +16,7 @@ body {
     flex-direction: column;
 }
 
-/* Фон сцены - занимает весь экран */
+/* Фоновое изображение */
 .background {
     position: absolute;
     top: 0;
@@ -30,29 +29,26 @@ body {
     z-index: -1;
 }
 
-/* Контейнер для текста сцены */
+/* Контейнер для текста с градиентом снизу вверх */
 .text-container {
     flex: 1;
     padding: 20px;
     display: flex;
     align-items: flex-end;
-    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+    background: linear-gradient(0deg, 
+        rgba(0,0,0,0.9) 0%, 
+        rgba(0,0,0,0.6) 30%, 
+        transparent 100%);
 }
 
 /* Текст сцены */
 .scene-text {
-    background: rgba(0, 0, 0, 0.7);
+    background: transparent;  /* Прозрачный, потому что градиент уже есть */
     padding: 20px;
-    border-radius: 15px;
     font-size: 18px;
     line-height: 1.5;
-    animation: fadeIn 0.5s ease;
-}
-
-/* Анимация появления текста */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    min-height: 100px;
 }
 
 /* Контейнер для вариантов выбора */
@@ -62,6 +58,8 @@ body {
     flex-direction: column;
     gap: 10px;
     background: rgba(0, 0, 0, 0.8);
+    max-height: 40vh;
+    overflow-y: auto;
 }
 
 /* Стили для кнопок выбора */
@@ -75,27 +73,63 @@ body {
     cursor: pointer;
     text-align: left;
     transition: all 0.3s ease;
-    animation: slideIn 0.3s ease;
+    opacity: 0;
+    animation: slideIn 0.3s ease forwards;
 }
 
-/* Анимация появления кнопок */
+/* Разные стили для кнопок в разных местах */
+.choice-btn.mystical {
+    background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
+    border-left: 5px solid gold;
+}
+
+.choice-btn.danger {
+    background: linear-gradient(135deg, #c31432 0%, #240b36 100%);
+    border-left: 5px solid red;
+}
+
+.choice-btn.peaceful {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    border-left: 5px solid lightgreen;
+}
+
+/* Эффекты при наведении */
+.choice-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.choice-btn:active {
+    transform: scale(0.98);
+}
+
+/* Анимации */
 @keyframes slideIn {
     from { opacity: 0; transform: translateX(-20px); }
     to { opacity: 1; transform: translateX(0); }
 }
 
-/* Эффекты при наведении (для десктопов) */
-.choice-btn:hover {
-    transform: scale(1.02);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
-/* Эффекты при нажатии */
-.choice-btn:active {
-    transform: scale(0.98);
+/* Мигающий курсор для печатающегося текста */
+.typing-cursor {
+    display: inline-block;
+    width: 3px;
+    height: 20px;
+    background-color: white;
+    margin-left: 5px;
+    animation: blink 1s infinite;
 }
 
-/* Блок статистики */
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+/* Статистика */
 .stats {
     position: absolute;
     top: 10px;
@@ -105,4 +139,16 @@ body {
     border-radius: 10px;
     font-size: 14px;
     z-index: 10;
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.5s ease;
+}
+
+/* Полоса прокрутки для кнопок */
+.choices-container::-webkit-scrollbar {
+    width: 5px;
+}
+
+.choices-container::-webkit-scrollbar-thumb {
+    background: #6a11cb;
+    border-radius: 5px;
 }
