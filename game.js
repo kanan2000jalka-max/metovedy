@@ -235,7 +235,7 @@ function loadScene(sceneId) {
         // Выводим текст
         const textElement = document.getElementById('scene-text');
         if (textElement) {
-            typeText(scene.text, textElement, 25);
+            typeTextVertical(scene.text, textElement, 25);
         }
         
         // Создаем кнопки выбора
@@ -291,7 +291,7 @@ function loadMultiPageScene(sceneId, pageIndex = 0) {
         const textElement = document.getElementById('scene-text');
         if (textElement) {
             // Обычный вывод или побуквенный - на ваш выбор
-            typeText(scene.pages[pageIndex], textElement, 25);
+            typeTextVertical(scene.pages[pageIndex], textElement, 25);
         }
         
         // ОЧИЩАЕМ КОНТЕЙНЕР С КНОПКАМИ
