@@ -111,3 +111,61 @@ body {
     text-transform: uppercase;
     font-weight: bold;
 }
+.centered-button-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 300px;
+    z-index: 10;
+}
+
+/* Стиль для большой кнопки "Свет" */
+.light-button {
+    padding: 25px 40px;
+    font-size: 32px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #fff7b0, #ffe570);
+    color: #333;
+    border: none;
+    border-radius: 60px;
+    cursor: pointer;
+    box-shadow: 0 0 50px rgba(255, 255, 200, 0.8);
+    animation: pulse 2s infinite;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.light-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 80px rgba(255, 255, 255, 1);
+}
+
+.light-button:active {
+    transform: scale(0.95);
+}
+
+/* Анимация пульсации */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 30px rgba(255, 255, 200, 0.6);
+    }
+    50% {
+        box-shadow: 0 0 70px rgba(255, 255, 255, 1);
+    }
+    100% {
+        box-shadow: 0 0 30px rgba(255, 255, 200, 0.6);
+    }
+}
+
+/* Скрываем обычный контейнер для текста на первой сцене */
+.first-scene .text-container {
+    display: none;
+}
+
+.first-scene .choices-container {
+    display: none;
+}
