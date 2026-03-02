@@ -1,291 +1,403 @@
-/// ========================
-// game.js - ИСПРАВЛЕННАЯ ВЕРСИЯ
+// ========================
+// game.js - КАРКАС ДЛЯ ТВОЕЙ ИСТОРИИ
 // ========================
 
-// Telegram Web App может быть не доступен
+// ----- Telegram интеграция -----
 let tg = null;
 try {
     tg = window.Telegram?.WebApp;
     if (tg) {
         tg.expand();
-        tg.enableClosingConfirmation();
     }
 } catch (e) {
-    console.log("Telegram Web App не доступен, работает в браузере");
+    console.log("Обычный браузер");
 }
 
-// Состояние игры - УПРОЩЕННОЕ для мобильных
+// ----- СОСТОЯНИЕ ИГРЫ -----
+// Здесь хранятся все переменные игры
 const gameState = {
-    currentScene: "start",
-    health: 100,
-    inventory: []
+    currentScene: "start",      // Текущая сцена
+//    health: 100,                // Здоровье игрока
+//    inventory: [],              // Инвентарь (массив предметов)
+    flags: {},                  // Флаги для сложных условий (можно добавлять любые)
+    savedAt: null               // Время последнего сохранения
 };
 
-// УПРОЩЕННЫЕ сцены БЕЗ изображений
+// ----- БАЗА ДАННЫХ ИСТОРИИ -----
+// СЮДА ТЫ БУДЕШЬ ДОБАВЛЯТЬ СВОИ СЦЕНЫ
 const scenes = {
+    // ===== НАЧАЛО ИСТОРИИ =====
     "start": {
-        text: "🏞️ Вы просыпаетесь в древнем лесу. Вокруг густой туман. Перед вами две тропинки.",
+        // Фоновое изображение (можно менять для каждой сцены)
+        background: "url('https://example.com/forest.jpg')",
+        
+        // Текст сцены (будет печататься побуквенно)
+        text: "Ты просыпаешься в густом тумане. Голова гудит, а последнее, что помнишь - это как ты заходил в этот странный лес. Вокруг тихо, лишь где-то вдалеке слышен вой.",
+        
+        // Варианты выбора
         choices: [
             { 
-                text: "⬅️ Пойти налево, к свету", 
-                nextScene: "light_path"
+                text: "🔍 Осмотреться вокруг",           // Текст кнопки
+                nextScene: "examine_area",                // Куда ведет
+                style: "peaceful",                         // Стиль кнопки (peaceful, danger, mystical)
+                effect: () => {                             // Что происходит при выборе
+                    // Здесь можно добавить эффект
+                    console.log("Осмотрелся");
+                }
             },
             { 
-                text: "➡️ Пойти направо, в лес", 
-                nextScene: "dark_forest"
-            }
-        ]
-    },
-    
-    "light_path": {
-        text: "✨ Вы идете к свету. Вдали виден старый храм. У входа сидит мудрый старец.",
-        choices: [
-            { 
-                text: "💬 Поговорить со старцем", 
-                nextScene: "elder_talk"
-            },
-            { 
-                text: "🚶 Пройти мимо", 
-                nextScene: "temple_inside"
-            }
-        ]
-    },
-    
-    "elder_talk": {
-        text: "🧙 Старец даёт вам волшебный амулет: 'Это поможет в тёмных местах'.",
-        choices: [
-            { 
-                text: "✅ Принять амулет", 
-                nextScene: "temple_inside",
+                text: "🚶 Пойти на звук воя", 
+                nextScene: "go_to_howling",
+                style: "danger",
                 effect: () => {
-                    try {
-                        gameState.inventory.push("Амулет");
-                        gameState.health += 20;
-                    } catch (e) {
-                        console.log("Ошибка в эффекте:", e);
-                    }
+                    gameState.flags.heardHowling = true;   // Пример установки флага
+                }
+            },
+            { 
+                text: "🧘 Остаться на месте и ждать", 
+                nextScene: "wait",
+                style: "mystical"
+            }
+        ]
+    },
+    
+    // ===== СЦЕНА: ОСМОТРЕТЬСЯ =====
+    "examine_area": {
+        background: "url('https://example.com/forest-clearing.jpg')",
+        text: "Оглядевшись, ты замечаешь старую тропинку, уходящую вглубь леса, и догорающий костер неподалеку. У костра лежит чей-то рюкзак.",
+        
+        choices: [
+            { 
+                text: "🔥 Подойти к костру", 
+                nextScene: "campfire",
+                style: "peaceful"
+            },
+            { 
+                text: "🌲 Пойти по тропинке", 
+                nextScene: "path",
+                style: "mystical"
+            }
+        ]
+    },
+    
+    // ===== СЦЕНА: ПОДОЙТИ К КОСТРУ =====
+    "campfire": {
+        background: "url('https://example.com/campfire.jpg')",
+        text: "Ты подходишь к костру. Он еще теплый. В рюкзаке ты находишь флягу с водой и карту местности.",
+        
+        choices: [
+            { 
+                text: "💧 Взять флягу и карту", 
+                nextScene: "path",
+                style: "peaceful",
+                effect: () => {
+                    gameState.inventory.push("Фляга с водой");
+                    gameState.inventory.push("Карта");
+                    gameState.health += 10;  // Вода прибавила сил
                 }
             }
         ]
     },
     
-    "dark_forest": {
-        text: "🌲 В лесу темно. Вы слышите странные звуки...",
+    // ===== СЦЕНА: ПУТЬ В НИКУДА (пример с условием) =====
+    "path": {
+        background: "url('https://example.com/dark-path.jpg')",
+        text: "Ты идешь по тропинке. " + (gameState.inventory.includes("Карта") ? 
+            "Благодаря карте ты уверен в направлении." : 
+            "Без карты ты чувствуешь, что заблудился."),
+        
         choices: [
             { 
-                text: "👣 Идти дальше", 
-                nextScene: "forest_depth"
+                text: "Идти дальше", 
+                nextScene: "next_location",
+                style: "mystical"
             }
         ]
     },
     
-    "temple_inside": {
-        text: "🏛️ Вы в храме. Древние фрески рассказывают историю. Конец пути!",
+    // ===== ПРИМЕР СЦЕНЫ С ПРОВЕРКОЙ ИНВЕНТАРЯ =====
+    "next_location": {
+        background: "url('https://example.com/cave.jpg')",
+        text: "Ты выходишь к пещере. Вход охраняет огромный медведь.",
+        
+        // Динамические варианты в зависимости от инвентаря
+        getChoices: function() {
+            const choices = [
+                { 
+                    text: "⚔️ Атаковать медведя", 
+                    nextScene: "bear_fight",
+                    style: "danger"
+                }
+            ];
+            
+            // Если есть фляга, можно отвлечь медведя
+            if (gameState.inventory.includes("Фляга с водой")) {
+                choices.push({
+                    text: "💧 Отвлечь медведя водой",
+                    nextScene: "sneak_past",
+                    style: "peaceful",
+                    effect: () => {
+                        gameState.inventory = gameState.inventory.filter(i => i !== "Фляга с водой");
+                    }
+                });
+            }
+            
+            return choices;
+        }
+    },
+    
+    // ===== СЦЕНА С ПОТЕРЕЙ ЗДОРОВЬЯ =====
+    "bear_fight": {
+        background: "url('https://example.com/bear-attack.jpg')",
+        text: "Медведь оказался сильнее. Ты получаешь серьезные раны, но успеваешь убежать.",
+        
         choices: [
             { 
-                text: "🔄 Начать заново", 
+                text: "🏃 Убежать в лес", 
+                nextScene: "injured",
+                style: "danger",
+                effect: () => {
+                    gameState.health -= 40;
+                }
+            }
+        ]
+    },
+    
+    // ===== СЦЕНА: РАНЕНЫЙ =====
+    "injured": {
+        background: "url('https://example.com/bleeding.jpg')",
+        text: "Ты ранен и истекаешь кровью. Нужно перевязать рану.",
+        
+        choices: [
+            { 
+                text: "🩹 Перевязать рану тканью", 
+                nextScene: "healed",
+                style: "peaceful",
+                effect: () => {
+                    gameState.health += 20;
+                }
+            }
+        ]
+    },
+    
+    // ===== СЦЕНА: ИСЦЕЛЕНИЕ =====
+    "healed": {
+        background: "url('https://example.com/clearing.jpg')",
+        text: "Тебе удалось остановить кровь. Ты выжил!",
+        
+        choices: [
+            { 
+                text: "🔄 Начать сначала", 
                 nextScene: "start",
+                style: "mystical",
                 effect: () => {
-                    try {
-                        gameState.health = 100;
-                        gameState.inventory = [];
-                    } catch (e) {
-                        console.log("Ошибка сброса:", e);
-                    }
+                    // Полный сброс игры
+                    gameState.health = 100;
+                    gameState.inventory = [];
+                    gameState.flags = {};
                 }
             }
         ]
     },
     
-    "forest_depth": {
-        text: "🌳 Вы в глубине леса. Здесь очень тихо...",
+    // ===== СЦЕНА: КОНЦОВКА =====
+    "sneak_past": {
+        background: "url('https://example.com/cave-entrance.jpg')",
+        text: "Ты проскальзываешь мимо медведя и входишь в пещеру. Внутри ты находишь сокровища! Ты победил!",
+        
         choices: [
             { 
-                text: "🔙 Вернуться", 
-                nextScene: "start"
+                text: "🏆 Начать новую историю", 
+                nextScene: "start",
+                style: "peaceful",
+                effect: () => {
+                    gameState.health = 100;
+                    gameState.inventory = [];
+                    gameState.flags = {};
+                }
             }
         ]
     }
 };
 
-// ГЛАВНАЯ ФУНКЦИЯ - полностью переписана с защитой
-function loadScene(sceneId) {
+// ----- СЛУЖЕБНЫЕ ФУНКЦИИ (НЕ ТРОГАТЬ) -----
+
+// Функция печати текста побуквенно
+async function typeText(element, text, speed = 30) {
+    return new Promise(resolve => {
+        element.innerHTML = '';  // Очищаем
+        let i = 0;
+        
+        function type() {
+            if (i < text.length) {
+                element.innerHTML += text.charAt(i);
+                i++;
+                setTimeout(type, speed);
+            } else {
+                resolve();  // Печать закончена
+            }
+        }
+        
+        type();
+    });
+}
+
+// Главная функция загрузки сцены
+async function loadScene(sceneId) {
     try {
-        // 1. Проверяем существование сцены
-        const scene = scenes[sceneId];
-        if (!scene) {
-            console.error("Сцена не найдена, возвращаем в start");
-            sceneId = "start";
+        // Получаем сцену
+        let scene = scenes[sceneId];
+        if (!scene) scene = scenes["start"];
+        
+        // Обновляем фон
+        const bgElement = document.getElementById("background");
+        if (scene.background && bgElement) {
+            bgElement.style.backgroundImage = scene.background;
         }
         
-        // 2. Обновляем состояние
-        gameState.currentScene = sceneId;
-        
-        // 3. Обновляем текст - БЕЗОПАСНО
+        // Печатаем текст
         const textElement = document.getElementById("scene-text");
-        if (textElement && scene) {
-            textElement.textContent = scene.text || "Текст сцены";
+        if (textElement) {
+            await typeText(textElement, scene.text || "...", 30);
         }
         
-        // 4. Очищаем кнопки ПРАВИЛЬНО
+        // Получаем варианты выбора
+        let choices = scene.choices;
+        if (scene.getChoices) {
+            choices = scene.getChoices();  // Для динамических сцен
+        }
+        
+        // Создаем кнопки
         const choicesContainer = document.getElementById("choices");
         if (choicesContainer) {
-            // Полностью очищаем
+            // Очищаем контейнер
             while (choicesContainer.firstChild) {
                 choicesContainer.removeChild(choicesContainer.firstChild);
             }
             
-            // Создаем новые кнопки с задержкой
-            if (scene && scene.choices) {
-                scene.choices.forEach((choice, index) => {
-                    setTimeout(() => {
+            // Создаем кнопки
+            if (choices && choices.length > 0) {
+                for (let i = 0; i < choices.length; i++) {
+                    const choice = choices[i];
+                    
+                    // Небольшая задержка для красивой анимации
+                    await new Promise(r => setTimeout(r, 100));
+                    
+                    const button = document.createElement("button");
+                    button.className = "choice-btn";
+                    if (choice.style) {
+                        button.classList.add(choice.style);
+                    }
+                    button.textContent = choice.text;
+                    
+                    button.onclick = () => {
                         try {
-                            const button = document.createElement("button");
-                            button.className = "choice-btn";
-                            button.textContent = choice.text;
+                            // Применяем эффект
+                            if (choice.effect) {
+                                choice.effect();
+                            }
                             
-                            // УПРОЩЕННЫЙ обработчик
-                            button.onclick = () => {
-                                try {
-                                    // Применяем эффект если есть
-                                    if (choice.effect && typeof choice.effect === 'function') {
-                                        choice.effect();
-                                    }
-                                    
-                                    // Загружаем следующую сцену
-                                    if (choice.nextScene) {
-                                        loadScene(choice.nextScene);
-                                    }
-                                    
-                                    // Обновляем статистику
-                                    updateStats();
-                                } catch (error) {
-                                    console.error("Ошибка в обработчике:", error);
-                                    loadScene("start"); // Возврат к началу при ошибке
-                                }
-                            };
+                            // Переходим к следующей сцене
+                            if (choice.nextScene) {
+                                loadScene(choice.nextScene);
+                            }
                             
-                            choicesContainer.appendChild(button);
-                        } catch (e) {
-                            console.error("Ошибка создания кнопки:", e);
+                            // Обновляем статистику
+                            updateStats();
+                            
+                            // Автосохранение
+                            saveGame();
+                            
+                        } catch (error) {
+                            console.error("Ошибка:", error);
                         }
-                    }, index * 50); // Маленькая задержка
-                });
+                    };
+                    
+                    choicesContainer.appendChild(button);
+                }
             }
         }
         
-        // 5. Обновляем статистику
+        // Обновляем статистику
         updateStats();
         
-        // 6. Сохраняем состояние (опционально)
-        try {
-            localStorage.setItem('gameState', JSON.stringify(gameState));
-        } catch (e) {
-            console.log("Не удалось сохранить в localStorage");
-        }
-        
     } catch (error) {
-        console.error("КРИТИЧЕСКАЯ ОШИБКА в loadScene:", error);
-        // Аварийный вывод на экран
-        const textElement = document.getElementById("scene-text");
-        if (textElement) {
-            textElement.textContent = "Произошла ошибка. Игра перезапускается...";
-        }
-        
-        // Сброс и возврат к началу
-        setTimeout(() => {
-            gameState.currentScene = "start";
-            gameState.health = 100;
-            gameState.inventory = [];
-            loadScene("start");
-        }, 1000);
+        console.error("Критическая ошибка:", error);
     }
 }
 
-// Упрощенная функция обновления статистики
+// Обновление статистики
 function updateStats() {
+    const healthElement = document.getElementById("health");
+    const inventoryElement = document.getElementById("inventory");
+    
+    if (healthElement) {
+        healthElement.textContent = `❤️ ${Math.max(0, gameState.health)} HP`;
+    }
+    
+    if (inventoryElement) {
+        const items = gameState.inventory.length > 0 
+            ? gameState.inventory.join(" • ") 
+            : "пусто";
+        inventoryElement.textContent = `🎒 ${items}`;
+    }
+    
+    // Проверка смерти
+    if (gameState.health <= 0) {
+        setTimeout(() => loadScene("death"), 1000);
+    }
+}
+
+// Сохранение игры
+function saveGame() {
     try {
-        const healthElement = document.getElementById("health");
-        const inventoryElement = document.getElementById("inventory");
-        
-        if (healthElement) {
-            healthElement.textContent = `❤️ ${Math.max(0, gameState.health)} HP`;
-        }
-        
-        if (inventoryElement) {
-            inventoryElement.textContent = `🎒 ${gameState.inventory.length > 0 ? gameState.inventory.join(", ") : "пусто"}`;
-        }
-        
-        // Проверка здоровья
-        if (gameState.health <= 0) {
-            setTimeout(() => loadScene("game_over"), 500);
+        gameState.savedAt = new Date().toISOString();
+        localStorage.setItem('textGameSave', JSON.stringify(gameState));
+        console.log("Игра сохранена");
+    } catch (e) {
+        console.log("Не удалось сохранить");
+    }
+}
+
+// Загрузка сохранения
+function loadSavedGame() {
+    try {
+        const saved = localStorage.getItem('textGameSave');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            Object.assign(gameState, parsed);
+            return true;
         }
     } catch (e) {
-        console.log("Ошибка обновления статистики:", e);
+        console.log("Нет сохранения");
     }
+    return false;
 }
 
-// Добавляем сцену Game Over
-scenes["game_over"] = {
-    text: "💀 Вы погибли...",
+// Инициализация игры
+document.addEventListener("DOMContentLoaded", async function() {
+    // Спрашиваем, хочет ли игрок загрузить сохранение
+    if (loadSavedGame()) {
+        // Можно добавить диалог, но для простоты просто загружаем
+        loadScene(gameState.currentScene);
+    } else {
+        loadScene("start");
+    }
+});
+
+// Добавляем сцену смерти
+scenes["death"] = {
+    background: "url('https://example.com/death.jpg')",
+    text: "💀 Ты погиб... Игра окончена.",
     choices: [
         {
-            text: "🔄 Попробовать снова",
+            text: "🔄 Начать заново",
             nextScene: "start",
             effect: () => {
                 gameState.health = 100;
                 gameState.inventory = [];
+                gameState.flags = {};
             }
         }
     ]
 };
-
-// ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ - УПРОЩЕННАЯ
-document.addEventListener("DOMContentLoaded", function() {
-    console.log("Документ загружен");
-    
-    // Даем время на полную загрузку
-    setTimeout(() => {
-        try {
-            // Пробуем загрузить сохранение
-            const saved = localStorage.getItem('gameState');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    gameState.currentScene = parsed.currentScene || "start";
-                    gameState.health = parsed.health || 100;
-                    gameState.inventory = parsed.inventory || [];
-                } catch (e) {
-                    console.log("Ошибка загрузки сохранения");
-                }
-            }
-            
-            // Загружаем сцену
-            loadScene(gameState.currentScene);
-            
-        } catch (error) {
-            console.error("Ошибка инициализации:", error);
-            // Аварийный запуск
-            const textElement = document.getElementById("scene-text");
-            if (textElement) {
-                textElement.textContent = "Загрузка игры...";
-            }
-            setTimeout(() => loadScene("start"), 500);
-        }
-    }, 100);
-});
-
-// Отключаем все сложные Telegram функции
-if (tg) {
-    try {
-        // Отключаем кнопку назад если она вызывает проблемы
-        if (tg.BackButton) {
-            tg.BackButton.hide();
-        }
-        
-        // Отключаем отправку данных если крашит
-        // tg.sendData = null;
-    } catch (e) {
-        console.log("Ошибка инициализации Telegram:", e);
-    }
-}
