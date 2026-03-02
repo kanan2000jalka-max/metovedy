@@ -233,7 +233,7 @@ function typeTextVertical(text, element, wrapper, speed = 15) {
 }
 
 // ========================
-// ОБНОВЛЕННАЯ ЗАГРУЗКА СЦЕНЫ
+// ЗАГРУЗКА СЦЕНЫ
 // ========================
 function loadScene(sceneId) {
     const scene = scenes[sceneId];
@@ -333,10 +333,10 @@ function loadMultiPageScene(sceneId, pageIndex = 0) {
                 createFullscreenClickListener(sceneId, pageIndex);
                 
                 // Можно добавить маленькую подсказку
-                const hint = document.createElement('div');
-                hint.className = 'tap-hint';
-                hint.textContent = '👆 нажмите в любом месте';
-                choicesContainer.appendChild(hint);
+//                const hint = document.createElement('div');
+//                hint.className = 'tap-hint';
+//                hint.textContent = '👆 нажмите в любом месте';
+//                choicesContainer.appendChild(hint);
             } 
             // Если это последняя страница - показываем кнопку перехода
             else {
