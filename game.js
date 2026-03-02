@@ -219,7 +219,7 @@ function typeTextVertical(text, element, wrapper, speed = 30) {
             // Каждый новый символ прокручивает контейнер вверх
             wrapper.scrollTop = 0;  // 0 = самый верх
             
-            setTimeout(addChar, speed);
+            currentAnimation = setTimeout(addChar, speed);
         } else {
             // Финальная автопрокрутка к началу
             wrapper.scrollTo({
