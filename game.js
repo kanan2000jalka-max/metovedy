@@ -49,9 +49,7 @@ function saveGame() {
     }
 }
 
-// ========================
-// 4. БАЗА ДАННЫХ ВАШЕЙ ИСТОРИИ
-// ========================
+
 // ========================
 // 4. ПЕРВАЯ СЦЕНА (ОБНОВЛЕННАЯ)
 // ========================
@@ -111,7 +109,7 @@ function showFirstScene() {
 const scenes = {
     // СЦЕНА 1 - НАЧАЛО
     "after_light": {
-        text: "Свет.",
+        text: "Свет. Его здесь нет.",
         background: "url('images/111.png')",
         choices: [
             { 
@@ -290,46 +288,42 @@ function typeTextVertical(text, element, wrapper, speed = 30) {
 }
 
 // ========================
-// 6. ЗАГРУЗКА СЦЕНЫ
+// ОБНОВЛЕННАЯ ЗАГРУЗКА СЦЕНЫ
 // ========================
 function loadScene(sceneId) {
-    try {
-        const scene = scenes[sceneId];
-        if (!scene) {
-            console.error('Сцена не найдена');
-            return;
-        }
+    const scene = scenes[sceneId];
+    if (!scene) return;
+    
+    // Удаляем старый слушатель кликов
+    removeFullscreenClickListener();
+    
+    // Проверяем тип сцены
+    if (scene.type === "multi-page") {
+        // Многостраничная сцена - начинаем с первой страницы
+        loadMultiPageScene(sceneId, 0);
+    } else {
+        // Обычная сцена с выбором - ваш существующий код
+        // (весь код из вашей текущей loadScene)
         
-        // Обновляем состояние
-        gameState.currentScene = sceneId;
-        
-        // Меняем фон
+        // Обновляем фон
         const bgElement = document.getElementById('background');
         if (bgElement) {
             bgElement.style.backgroundImage = scene.background || '';
         }
         
-        // ВЫВОДИМ ТЕКСТ С ВЕРТИКАЛЬНОЙ АНИМАЦИЕЙ
+        // Выводим текст
         const textElement = document.getElementById('scene-text');
-        const wrapper = document.querySelector('.scrolling-text-wrapper');
-        
-        if (textElement && wrapper) {
-            // Сбрасываем прокрутку в самый низ перед началом
-            wrapper.scrollTop = wrapper.scrollHeight;
-            
-            // Запускаем вертикальную анимацию
-            typeTextVertical(scene.text, textElement, wrapper, 25);
+        if (textElement) {
+            typeText(scene.text, textElement, 25);
         }
         
-        // Создаем кнопки
+        // Создаем кнопки выбора
         const choicesContainer = document.getElementById('choices');
         if (choicesContainer) {
-            // Очищаем контейнер
             while (choicesContainer.firstChild) {
                 choicesContainer.removeChild(choicesContainer.firstChild);
             }
             
-            // Создаем новые кнопки
             if (scene.choices) {
                 scene.choices.forEach(choice => {
                     const button = document.createElement('button');
@@ -337,27 +331,120 @@ function loadScene(sceneId) {
                     button.textContent = choice.text;
                     
                     button.onclick = () => {
-                        // Применяем эффект, если есть
-                        if (choice.effect) {
-                            choice.effect();
-                        }
-                        
-                        // Сохраняем игру перед переходом
+                        if (choice.effect) choice.effect();
                         saveGame();
-                        
-                        // Загружаем следующую сцену
-                        if (choice.nextScene) {
-                            loadScene(choice.nextScene);
-                        }
+                        if (choice.nextScene) loadScene(choice.nextScene);
                     };
                     
                     choicesContainer.appendChild(button);
                 });
             }
         }
+    }
+    
+    saveGame();
+}
+
+// ========================
+// ЗАГРУЗКА МНОГОСТРАНИЧНОЙ СЦЕНЫ
+// ========================
+function loadMultiPageScene(sceneId, pageIndex = 0) {
+    try {
+        const scene = scenes[sceneId];
+        if (!scene || scene.type !== "multi-page") {
+            console.error('Многостраничная сцена не найдена');
+            return;
+        }
+        
+        // Обновляем состояние
+        gameState.currentScene = sceneId;
+        gameState.currentPage = pageIndex;  // запоминаем текущую страницу
+        
+        // Меняем фон
+        const bgElement = document.getElementById('background');
+        if (bgElement) {
+            bgElement.style.backgroundImage = scene.background || '';
+        }
+        
+        // Выводим текущую страницу
+        const textElement = document.getElementById('scene-text');
+        if (textElement) {
+            // Обычный вывод или побуквенный - на ваш выбор
+            typeText(scene.pages[pageIndex], textElement, 25);
+        }
+        
+        // ОЧИЩАЕМ КОНТЕЙНЕР С КНОПКАМИ
+        const choicesContainer = document.getElementById('choices');
+        if (choicesContainer) {
+            while (choicesContainer.firstChild) {
+                choicesContainer.removeChild(choicesContainer.firstChild);
+            }
+            
+            // Если это не последняя страница - показываем подсказку
+            if (pageIndex < scene.pages.length - 1) {
+                // Создаем "невидимую" кнопку на весь экран
+                createFullscreenClickListener(sceneId, pageIndex);
+                
+                // Можно добавить маленькую подсказку
+                const hint = document.createElement('div');
+                hint.className = 'tap-hint';
+                hint.textContent = '👆 нажмите в любом месте';
+                choicesContainer.appendChild(hint);
+            } 
+            // Если это последняя страница - показываем кнопку перехода
+            else {
+                // Удаляем слушатель с экрана
+                removeFullscreenClickListener();
+                
+                // Создаем кнопку продолжения
+                const continueBtn = document.createElement('button');
+                continueBtn.className = 'choice-btn important';
+                continueBtn.textContent = 'Продолжить →';
+                
+                continueBtn.onclick = () => {
+                    // Применяем эффект если есть
+                    if (scene.onComplete?.effect) {
+                        scene.onComplete.effect();
+                    }
+                    // Переходим к следующей сцене
+                    if (scene.onComplete?.nextScene) {
+                        loadScene(scene.onComplete.nextScene);
+                    }
+                };
+                
+                choicesContainer.appendChild(continueBtn);
+            }
+        }
         
     } catch (error) {
-        console.error('Ошибка загрузки сцены:', error);
+        console.error('Ошибка загрузки многостраничной сцены:', error);
+    }
+}
+
+// ========================
+// СЛУШАТЕЛЬ КЛИКА ПО ЭКРАНУ
+// ========================
+let fullscreenClickListener = null;
+
+function createFullscreenClickListener(sceneId, currentPage) {
+    // Удаляем старый слушатель если есть
+    removeFullscreenClickListener();
+    
+    // Создаем новый слушатель
+    fullscreenClickListener = () => {
+        // Переходим к следующей странице
+        const nextPage = currentPage + 1;
+        loadMultiPageScene(sceneId, nextPage);
+    };
+    
+    // Добавляем слушатель на весь документ
+    document.addEventListener('click', fullscreenClickListener);
+}
+
+function removeFullscreenClickListener() {
+    if (fullscreenClickListener) {
+        document.removeEventListener('click', fullscreenClickListener);
+        fullscreenClickListener = null;
     }
 }
 
