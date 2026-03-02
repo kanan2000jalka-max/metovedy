@@ -3,7 +3,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Segoe UI', Arial, sans-serif;
-    background: #1a1a1a;
+    background: #000;
     color: white;
     height: 100vh;
     overflow: hidden;
@@ -25,11 +25,10 @@ body {
     height: 100%;
     background-size: cover;
     background-position: center;
-    transition: opacity 0.5s ease;
     z-index: -1;
 }
 
-/* Контейнер для текста с градиентом снизу вверх */
+/* Градиент снизу вверх (черный -> прозрачный) */
 .text-container {
     flex: 1;
     padding: 20px;
@@ -37,118 +36,78 @@ body {
     align-items: flex-end;
     background: linear-gradient(0deg, 
         rgba(0,0,0,0.9) 0%, 
-        rgba(0,0,0,0.6) 30%, 
+        rgba(0,0,0,0.7) 20%, 
+        rgba(0,0,0,0.4) 50%,
         transparent 100%);
 }
 
 /* Текст сцены */
 .scene-text {
-    background: transparent;  /* Прозрачный, потому что градиент уже есть */
-    padding: 20px;
     font-size: 18px;
-    line-height: 1.5;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-    min-height: 100px;
+    line-height: 1.6;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
 }
 
-/* Контейнер для вариантов выбора */
+/* Контейнер для кнопок */
 .choices-container {
     padding: 15px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    background: rgba(0, 0, 0, 0.8);
-    max-height: 40vh;
-    overflow-y: auto;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.85);
+    border-top: 1px solid rgba(255,255,255,0.1);
 }
 
-/* Стили для кнопок выбора */
+/* Базовый стиль для всех кнопок */
 .choice-btn {
-    padding: 15px;
-    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    padding: 18px 20px;
+    background: rgba(255,255,255,0.1);
     color: white;
-    border: none;
-    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
     font-size: 16px;
     cursor: pointer;
     text-align: left;
     transition: all 0.3s ease;
-    opacity: 0;
-    animation: slideIn 0.3s ease forwards;
+    backdrop-filter: blur(5px);
 }
 
-/* Разные стили для кнопок в разных местах */
-.choice-btn.mystical {
-    background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
-    border-left: 5px solid gold;
-}
-
-.choice-btn.danger {
-    background: linear-gradient(135deg, #c31432 0%, #240b36 100%);
-    border-left: 5px solid red;
-}
-
-.choice-btn.peaceful {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-    border-left: 5px solid lightgreen;
-}
-
-/* Эффекты при наведении */
 .choice-btn:hover {
+    background: rgba(255,255,255,0.2);
     transform: scale(1.02);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    border-color: rgba(255,255,255,0.4);
 }
 
 .choice-btn:active {
     transform: scale(0.98);
 }
 
-/* Анимации */
-@keyframes slideIn {
-    from { opacity: 0; transform: translateX(-20px); }
-    to { opacity: 1; transform: translateX(0); }
+/* Классы-модификаторы для разных стилей кнопок */
+.choice-btn.important {
+    background: linear-gradient(135deg, #ff8c00, #ff2e00);
+    border: none;
+    font-weight: bold;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+.choice-btn.mysterious {
+    background: rgba(106, 17, 203, 0.6);
+    border: 1px solid #8a4fff;
+    box-shadow: 0 0 15px rgba(106, 17, 203, 0.3);
 }
 
-/* Мигающий курсор для печатающегося текста */
-.typing-cursor {
-    display: inline-block;
-    width: 3px;
-    height: 20px;
-    background-color: white;
-    margin-left: 5px;
-    animation: blink 1s infinite;
+.choice-btn.quiet {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #666;
+    color: #ccc;
+    font-style: italic;
 }
 
-@keyframes blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0; }
-}
-
-/* Статистика */
-.stats {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 10px 15px;
-    border-radius: 10px;
-    font-size: 14px;
-    z-index: 10;
-    backdrop-filter: blur(5px);
-    animation: fadeIn 0.5s ease;
-}
-
-/* Полоса прокрутки для кнопок */
-.choices-container::-webkit-scrollbar {
-    width: 5px;
-}
-
-.choices-container::-webkit-scrollbar-thumb {
-    background: #6a11cb;
-    border-radius: 5px;
+.choice-btn.danger {
+    background: linear-gradient(135deg, #aa0000, #660000);
+    border: none;
+    text-transform: uppercase;
+    font-weight: bold;
 }
