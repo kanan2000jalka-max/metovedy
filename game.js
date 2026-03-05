@@ -368,7 +368,7 @@ function showFirstScene() {
         if (choicesContainer) choicesContainer.style.display = 'flex';
         gameContainer.classList.remove('first-scene');
         
-        loadScene('after_light');
+        loadScene('frst_mssg');
     };
     
     buttonContainer.appendChild(lightButton);
@@ -402,56 +402,597 @@ function clearMessagesFromIndex(startIndex) {
 // СЦЕНЫ
 // ========================
 const scenes = {
-    "after_light": {
+    "frst_mssg": {
         type: "multi-page",
         background: "url('images/111.png')",
         pages: [
             "Свет...",
             "Его здесь нет",
-            "Даже стекло на каком-то моменте заканчивается - само понятие стеклянности исчезает, оставляя смысловой вакуум",
+            "Даже стекло на каком-то моменте заканчивается", 
+            "Само понятие стеклянности исчезает, оставляя смысловой вакуум",
             "Я бы сказал даже категорический вакуум!",
             "Основополагающий вакуум",
             "Стекло, за которым нет ничего и присутствует всё одновременно..."
         ],
         onComplete: {
-            nextScene: "exprmnt"
+            nextScene: "prlg_0.1"
         }
     },
-    
-    "exprmnt": {
+//================================================================
+    "prlg_0.1": {
         type: "choice",
         background: "url('images/111.png')",
         text: "Но давай с тобой устроим мысленный эксперимент?",
         choices: [
             { 
                 text: "Что за эксперимент?", 
-                nextScene: "non",
-                style: "mysterious",
-                effect: () => {
-                    clearMessagesFromIndex(3);
-                },
+                nextScene: "prlg_0.1.1m",
+                style: "mysterious"
+                
             },
             { 
                 text: "Давай", 
-                nextScene: "non",
+                nextScene: "prlg_0.2m",
                 style: "mysterious"
             },
             { 
                 text: "Не надо", 
-                nextScene: "non",
+                nextScene: "prlg_0.1.2",
+                style: "mysterious",
+                effect: () => {
+                    clearAllMessages();
+                }
+            }
+        ],
+    },
+    
+    "prlg_0.1.1m": {
+        type: "multi-page",
+        background: "url('images/111.png')",
+        pages: [
+            "Попытка заглянуть за ширму!"
+        ],
+        onComplete: {
+            nextScene: "prlg_0.1.1c"
+        }
+    },
+    
+    "prlg_0.1.1c": {
+        type: "choice",
+        background: "url('images/111.png')",
+        text: "Попытка узнать, куда ведут все дороги и откуда начинает произрастать семя",
+        choices: [
+            { 
+                text: "Интересно", 
+                nextScene: "prlg_0.2m",
+                style: "mysterious"
+            }
+        ]
+    },
+    
+    "prlg_0.1.2": {
+        type: "choice",
+        background: "url('images/111.png')",
+        text: "Да, действительно не надо. Не стоит открывать эту дверь)",
+        choices: [
+            { 
+                text: "Выключить свет", 
+                nextScene: "light_out",
+                style: "mysterious",
+                effect: () => {
+                    clearAllMessages();
+                }
+            }
+        ]
+    },
+//================================================================
+    "prlg_0.2m": {
+        type: "multi-page",
+        background: "url('images/111.png')",
+        pages: [ 
+            "Отлично!",
+            "Для этого нам понадобится целый спектр различных элементов!",
+            "Начиная от отдельных операторов, передающих определенную сторону обрабатываемых данных, заканчивая средой, в которой объявленные операторы исполняют свои функции!", 
+            "Запускаю вычислительную программу"
+        ],
+        onComplete: {
+            nextScene: "prlg_0.2c"
+        }      
+    },
+
+    "prlg_0.2c": {
+        type: "choice",
+        background: "url('images/111.png')",
+        text: "Программа запущена. Если у вас будут вопросы, вы можете заняться дешифорвкой среды. Это даст вам больше доступа к дополнительной информации",
+        choices: [
+            { 
+                text: "Вывод:", 
+                nextScene: "prlg_0.3",
+                style: "mysterious"
+            },
+            { 
+                text: "Дешифровка?", 
+                nextScene: "prlg_0.2.2m",
+                style: "mysterious",
+                effect: () => {
+                    clearAllMessages();
+                }
+            },
+            { 
+                text: "Я могу задать другие вопросы?", 
+                nextScene: "prlg_0.2.3",
+                style: "mysterious",
+                effect: () => {
+                    clearAllMessages();
+                }
+            }
+        ]      
+    },
+//==========
+    "prlg_0.2.2m": {
+        type: "multi-page",
+        background: "url('images/111.png')",
+        pages: [
+            "Вывод информации будет выражаться в текстовом описании и визуальных иллюстрациях.",
+            "Но из-за оптимизирования бюджета, доступ к информации будет доступен только в определенном количестве. Это будет называться - общая информация.",
+            "Для доступа к дополнительной информации, вы можете использовать дешифровку.",
+            "С ее помощью у вас будет доступ к отдельным элементам среды, что может увеличить уровень интерпретации эксперимента."
+        ],
+        onComplete: {
+            nextScene: "prlg_0.2.2c"
+        }
+    },
+    
+    "prlg_0.2.2c": {
+        type: "choice",
+        background: "url('images/111.png')",
+        text: "Для удобства, будем называть процесс дешифровки: - изучение.",
+        choices: [
+            { 
+                text: "То есть, я буду просто разглядывать разные вещи вокруг?", 
+                nextScene: "prlg_0.2.2.1m",
+                style: "mysterious"
+            },
+            { 
+                text: "Что за интерпретация?", 
+                nextScene: "prlg_0.2.2.2m",
+                style: "mysterious"
+            },
+            { 
+                text: "Понятно", 
+                nextScene: "prlg_0.2.4",
                 style: "mysterious"
             }
         ]
     },
 
-    "non": {
+    "prlg_0.2.2.1m": {
+        type: "multi-page",
+        background: "url('images/111.png')",
+        pages: [
+            "Как один из способов дешифровки.",
+            "Технически, это визуализация описательного текста, но разница между способами воспиятия исключительно технологическая"
+        ],
+        onComplete: {
+            nextScene: "prlg_0.2.2.1c"
+        }
+    },
+    
+    "prlg_0.2.2.1c": {
         type: "choice",
-        background: "url('images/11.png')",
-        text: "Эта страница пока что еще не готова. Прошу вас вернуться в самое начало)",
+        background: "url('images/111.png')",
+        text: "Все, так или иначе, преобразуется в сложную биохемическую реакцию внутри белкового вычислительного органа",
         choices: [
             { 
-                text: "В начало", 
-                nextScene: "after_light",
+                text: "Понятно", 
+                nextScene: "prlg_0.2.4",
+                style: "mysterious"
+            },
+            { 
+                text: "Я могу задать другие вопросы?", 
+                nextScene: "prlg_0.2.3",
+                style: "mysterious",
+                effect: () => {
+                    clearAllMessages();
+                }
+            }
+        ]
+    },
+    
+    "prlg_0.2.2.2m": {
+        type: "multi-page",
+        background: "url('images/111.png')",
+        pages: [
+            "Эксперемен подразумевает путь от начала до конца",
+            "Для прдвижения будет необходимо совершать определенные выборы, но не все выборы будуть приводить к продвижению",
+            "Так как путь является неленейным, отдельные пути продвижения будут либо возвращать обратно, либо приводить к тупикам",
+            "Но интерпритация - личное понимание, может открывать подсказки нужного направления для продвижения"
+        ],
+        onComplete: {
+            nextScene: "prlg_0.2.2.2c"
+        }
+    },
+    
+    "prlg_0.2.2.2c": {
+        type: "choice",
+        background: "url('images/111.png')",
+        text: "Так что для успеха эксперемента важно изучать дополнительную информацию",
+        choices: [
+            { 
+                text: "Понятно", 
+                nextScene: "prlg_0.2.4",
+                style: "mysterious"
+            },
+            { 
+                text: "Я могу задать другие вопросы?", 
+                nextScene: "prlg_0.2.3",
+                style: "mysterious",
+                effect: () => {
+                    clearAllMessages();
+                }
+            }
+        ]
+    },
+//==========    
+    "prlg_0.2.3": {
+        type: "choice",
+        background: "url('images/111.png')",
+        text: "Да, конечно! Надеюсь, доступные вопросы будут исчерпывающими для вас)",
+        choices: [
+            { 
+                text: "Что за дешифорвка? ", 
+                nextScene: "prlg_0.2.2m",
+                style: "mysterious"
+            },
+            { 
+                text: "Что за операторы?", 
+                nextScene: "prlg_0.2.3.1m",
+                style: "mysterious"
+            },
+            { 
+                text: "Что за среда?", 
+                nextScene: "prlg_0.2.3.2m",
+                style: "mysterious"
+            },
+            { 
+                text: "Я так и не понял, что за эксперемент?", 
+                nextScene: "prlg_0.2.3.3m",
+                style: "mysterious"
+            },
+            { 
+                text: "А ты кто вообще такой???", 
+                nextScene: "prlg_0.2.3.4m",
+                style: "mysterious"
+            },
+            { 
+                text: "Я все понял", 
+                nextScene: "prlg_0.2.4",
+                style: "mysterious"
+            },
+        ]
+    },
+
+    "prlg_0.2.3.1m": {
+        type: "multi-page",
+        background: "url('images/111.png')",
+        pages: [
+            "Не что, а кто...",
+            "Лучше не обращатся к ним, как к вещам. Это может провоцировать экзистенциальную тревогу.",
+            "Операторы будут производить различные операции и каждый будет отвечать за разные стороны общего процесса"
+        ],
+        onComplete: {
+            nextScene: "prlg_0.2.3.1c"
+        }
+    },
+
+    "prlg_0.2.3.1c": {
+        type: "choice",
+        background: "url('images/111.png')",
+        text: "При личном общении они смогут больше о себе рассказать",
+        choices: [
+            { 
+                text: "Понятно", 
+                nextScene: "prlg_0.2.4",
+                style: "mysterious"
+            },
+            { 
+                text: "Я могу задать другие вопросы?", 
+                nextScene: "prlg_0.2.3",
+                style: "mysterious",
+                effect: () => {
+                    clearAllMessages();
+                }
+            }
+        ]
+    },
+    
+    "prlg_0.2.3.2m": {
+        type: "multi-page",
+        background: "url('images/111.png')",
+        pages: [
+            "Самая простая и доступная, без излишеств. Обыкновенное пространство с различными поверхностями, сторонами и переходами между помещениями"
+        ],
+        onComplete: {
+            nextScene: "prlg_0.2.3.2c"
+        }
+    },
+    
+    "prlg_0.2.3.2c": {
+        type: "choice",
+        background: "url('images/111.png')",
+        text: "Ограниченное количевство ресурсов позволяет выражать только самое необходимое для комуникации операторов и их функцианированием, так как все остальное уходит на операцию",
+        choices: [
+            { 
+                text: "Понятно", 
+                nextScene: "prlg_0.2.4",
+                style: "mysterious"
+            },
+            { 
+                text: "Я могу задать другие вопросы?", 
+                nextScene: "prlg_0.2.3",
+                style: "mysterious",
+                effect: () => {
+                    clearAllMessages();
+                }
+            }
+        ]
+    },   
+// =======================
+//==---------???---------==
+// =======================
+    "prlg_0.2.3.3m": {
+        type: "multi-page",
+        background: "url('images/111.png')",
+        pages: [
+            "Что за эксперемент? (еще не написал)"
+        ],
+        onComplete: {
+            nextScene: "prlg_0.2.3.3c"
+        }
+    },
+//??????
+    "prlg_0.2.3.3c": {
+        type: "choice",
+        background: "url('images/111.png')",
+        text: "Что за эксперемент? (и это тоже не написал)",
+        choices: [
+            { 
+                text: "Понятно", 
+                nextScene: "prlg_0.2.4",
+                style: "mysterious"
+            },
+            { 
+                text: "Я могу задать другие вопросы?", 
+                nextScene: "prlg_0.2.3",
+                style: "mysterious",
+                effect: () => {
+                    clearAllMessages();
+                }
+            }
+        ]
+    },
+// =======================
+//==---------???---------==
+// =======================
+
+    
+
+    "prlg_0.2.3.4m": {
+        type: "multi-page",
+        background: "url('images/111.png')",
+        pages: [
+            "Приятно познакомится!"
+        ],
+        onComplete: {
+            nextScene: "prlg_0.2.3.4c"
+        }
+    },
+    
+    "prlg_0.2.3.4c": {
+        type: "choice",
+        background: "url('images/111.png')",
+        text: "Я есть лишь промежуток между отдельными частями информации. Период между транслированием и считыванием информации является приблезительным, но предельно точным ответом на вопрос",
+        choices: [
+            { 
+                text: "Понятно", 
+                nextScene: "prlg_0.2.4",
+                style: "mysterious"
+            },
+            { 
+                text: "Я могу задать другие вопросы?", 
+                nextScene: "prlg_0.2.3",
+                style: "mysterious",
+                effect: () => {
+                    clearAllMessages();
+                }
+            }
+        ]
+    },
+//==========
+    "prlg_0.2.4": {
+        type: "choice",
+        background: "url('images/111.png')",
+        text: "Отлично! Тогда вернемся к запуску программы",
+        choices: [
+            { 
+                text: "Вывод:", 
+                nextScene: "prlg_0.3",
+                style: "mysterious"
+            },
+            { 
+                text: "Нет, подожди! Мне нужны предыдущие вопросы...", 
+                nextScene: "prlg_0.2.3",
+                style: "mysterious"
+            }
+        ]
+    },
+//================================================================
+    "prlg_0.3": {
+        type: "multi-page",
+        background: "url('images/111.png')",
+        pages: [ 
+            "Первое, что нам нужно, так это команда, для реализации проекта!",
+            "Их досье будет лежать на столе",
+            "Так же нам нужно будет устройство для операций, реализуемых в проекте",
+            "Все остальное будет относится к дополнительной информации. Ее можно будет изучить отдельно",
+            "Будет объявлена среда, внутри которой можно будет взаимодействовать с вышеописанными элементами",
+        ],
+        onComplete: {
+            nextScene: "prlg_0.3.1"
+        }      
+    },    
+
+        "prlg_0.3.1": {
+        type: "choice",
+        background: "url('images/111.png')",
+        text: "Откройте глаза для старта взаимодействия",
+        choices: [
+            { 
+                text: "Открыть глаза", 
+                nextScene: "prlg_0.4",
+                style: "mysterious"
+            },
+            { 
+                text: "Что за команда?", 
+                nextScene: "prlg_0.3.1",
+                style: "mysterious",
+                effect: () => {
+                    clearAllMessages();
+                }
+            },
+            { 
+                text: "Что за устройство", 
+                nextScene: "prlg_0.3.1",
+                style: "mysterious",
+                effect: () => {
+                    clearAllMessages();
+                }
+            },
+            { 
+                text: "Что за дополнительная информация?", 
+                nextScene: "prlg_0.3.1",
+                style: "mysterious",
+                effect: () => {
+                    clearAllMessages();
+                }
+            },
+            { 
+                text: "Что за среда?", 
+                nextScene: "prlg_0.3.1",
+                style: "mysterious",
+                effect: () => {
+                    clearAllMessages();
+                }
+            }
+        ]      
+    },
+//================================================================    
+    "prlg_0.4": {
+        type: "multi-page",
+        background: "url('images/111.png')",
+        pages: [ 
+            "Врата глазных яблок открываются, улавливая скудный тусклый источник света в центре помещения.",
+            "Узконаправленный свет ложится на старую мебель, окруженную устрашающим колличевством комуникаций.",
+            "Оставшийся свет достается гудящей апаратуре, увесисто прижимающейся по краям стен.",
+            "В дальнем конце можно углядеть металическую дверь",
+            "Чувства не сразу дают о себе знать, но пространство постепенно наполняется присутсвием других фигур",
+            "Пара пассивных тел, слившихся с мебелью,",
+            "Кто то стоит у мерцающих экранов и чей то голос обращается к тебе..."
+        ],
+        onComplete: {
+            nextScene: "prlg_0.4.1"
+        }      
+    },    
+
+        "prlg_0.4.1": {
+        type: "choice",
+        background: "url('images/111.png')",
+        text: "- Ты здесь?",
+        choices: [
+            { 
+                text: "Кто?", 
+                nextScene: "prlg_0.4.1",
+                style: "mysterious",
+                effect: () => {
+                    clearAllMessages();
+                }
+            },
+            { 
+                text: "Где?", 
+                nextScene: "prlg_0.4.1",
+                style: "mysterious",
+                effect: () => {
+                    clearAllMessages();
+                }
+            },
+            { 
+                text: "Здесь", 
+                nextScene: "backroom_0.1",
+                style: "mysterious"
+            },
+            { 
+                text: "Осмотреться", 
+                nextScene: "prlg_0.4.1",
+                style: "mysterious",
+                effect: () => {
+                    clearAllMessages();
+                }
+            }
+        ]      
+    },
+    
+// конец пролога. начало уровня за кулисами
+
+        "backroom_0.1": {
+        type: "choice",
+        background: "url('images/111.png')",
+        text: "- Отлично! Как будешь готов, можешь присоедениться к группе",
+        choices: [
+            { 
+                text: "Ты кто?", 
+                nextScene: "backroom_0.1",
+                style: "mysterious",
+                effect: () => {
+                    clearAllMessages();
+                }
+            },
+            { 
+                text: "Что за группа?", 
+                nextScene: "backroom_0.1",
+                style: "mysterious",
+                effect: () => {
+                    clearAllMessages();
+                }
+            },
+            { 
+                text: "Стоп! Я вообще ничего не понимаю!", 
+                nextScene: "backroom_0.1",
+                style: "mysterious",
+                effect: () => {
+                    clearAllMessages();
+                }
+            },
+            { 
+                text: "Хорошо (Осмотреться)", 
+                nextScene: "backroom_0.1",
+                style: "mysterious",
+                effect: () => {
+                    clearAllMessages();
+                }
+            }
+        ]      
+    },
+
+// технические сцены
+
+    "light_out": {
+        type: "choice",
+        background: "url('images/11.png')",
+        text: "Свет погас. Все погрузилось во мрак и стало ничем",
+        choices: [
+            { 
+                text: "Включить свет", 
+                nextScene: "frst_mssg",
                 style: "mysterious",
                 effect: () => {
                     clearAllMessages();
@@ -459,6 +1000,7 @@ const scenes = {
             }
         ]
     }
+// конец блока
 };
 
 // ========================
@@ -480,4 +1022,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 100);
 });
-
