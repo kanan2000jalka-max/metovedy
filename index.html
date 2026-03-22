@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MetoVedy</title>
+
+    <!-- Telegram Web App -->
+    <!-- <script src="https://telegram.org/js/telegram-web-app.js"></script> -->
+
+    <!-- Стили -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+</head>
+
+<body>
+    <div class="game-container">
+        <div id="background" class="background"></div>
+        <div class="gradient-overlay"></div>
+
+        <div class="content">
+            <div id="choices" class="choices-container"></div>
+            <div class="messages-area">
+                <div class="messages-wrapper"></div>
+            </div>
+        </div>
+
+        <!-- Меню -->
+        <div id="menu" class="menu hidden">
+            <button onclick="game.newGame()">Новая игра</button>
+            <button onclick="game.loadGame()">Продолжить</button>
+            <button onclick="game.showSettings()">Настройки</button>
+        </div>
+    </div>
+
+    <!-- Подключаем JS -->
+    <script src="js/telegram.js"></script>
+
+
+    <!-- Сцены -->
+    <script src="js/scenes.js"></script>
+    <script src="scenes/prologue/01_start.js"></script>
+    <script src="scenes/endings/light_out.js"></script>
+    <script src="scenes/prologue/02_backrooms.js"></script>
+    <script src="scenes/prologue/03_prologue.js"></script>
+
+    <!-- Ядро игры -->
+    <script src="js/game.js"></script>
+</body>
+
+</html>
